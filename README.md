@@ -14,7 +14,7 @@ That is a good starting point for a MacBook Air with 16 GB RAM. If it feels slow
 qwen2.5-coder:3b
 ```
 
-## Run
+## Run A Local Model Only
 
 ```bash
 chmod +x setup-local-coder.sh
@@ -39,6 +39,42 @@ Use the local API:
 curl http://localhost:11434/api/generate \
   -d '{"model":"qwen2.5-coder:7b","prompt":"Write hello world in Python","stream":false}'
 ```
+
+## Run With A Browser Harness
+
+For a ChatGPT-style local app with model management and optional web search/RAG features, install Open WebUI:
+
+```bash
+./setup-open-webui.sh
+```
+
+Or use the main script directly:
+
+```bash
+./setup-local-coder.sh --webui
+```
+
+This installs:
+
+- Homebrew, if missing
+- Ollama
+- `qwen2.5-coder:7b`
+- Docker Desktop, if missing
+- Open WebUI at `http://localhost:3000`
+
+To use the smaller model:
+
+```bash
+./setup-open-webui.sh qwen2.5-coder:3b
+```
+
+Open WebUI should connect to Ollama at:
+
+```text
+http://host.docker.internal:11434
+```
+
+For web search inside Open WebUI, enable Web Search in the Open WebUI admin/settings UI and add a search provider/API key there.
 
 ## Web Access
 
