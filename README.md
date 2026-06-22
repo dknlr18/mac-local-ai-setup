@@ -44,10 +44,40 @@ curl http://localhost:11434/api/generate \
 
 Ollama models do not browse the web by themselves. They only know what is in the model and what you paste into the prompt.
 
-To ask the local model about a web page, use:
+To ask the local model about one web page, use:
 
 ```bash
 ./ask-url.py https://example.com "summarize this page"
 ```
 
 This fetches the page text, sends it to your local Ollama model, and prints the answer. It works best with normal public pages. It will not work well with pages that require login, heavy JavaScript, or bot checks.
+
+## Web Search
+
+Codex and Claude Code can search the web because an agent wrapper gives the model a search tool. For a local Ollama model, use `ask-web.py`.
+
+First create a free Brave Search API key:
+
+```text
+https://api.search.brave.com/app/keys
+```
+
+Then set it in Terminal:
+
+```bash
+export BRAVE_SEARCH_API_KEY="paste_key_here"
+```
+
+Ask a web-backed question:
+
+```bash
+./ask-web.py "what is the latest stable version of python"
+```
+
+The script searches the web, fetches the top result pages, sends that context to the local model, and asks it to cite sources.
+
+If you run your own SearXNG instance instead, set:
+
+```bash
+export SEARXNG_URL="http://localhost:8080"
+```
