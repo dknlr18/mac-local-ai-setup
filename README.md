@@ -1,6 +1,6 @@
 # Mac Local AI Setup
 
-Setup script for running a free local coding model on a MacBook Air.
+Setup scripts for running a free local coding model and a Codex/Claude Code-style terminal coding agent on a MacBook Air.
 
 The default model is:
 
@@ -13,6 +13,44 @@ That is a good starting point for a MacBook Air with 16 GB RAM. If it feels slow
 ```bash
 qwen2.5-coder:3b
 ```
+
+## Run OpenCode Agent Harness
+
+For a Codex CLI / Claude Code-style terminal coding agent, install OpenCode with Ollama:
+
+```bash
+chmod +x setup-opencode.sh
+./setup-opencode.sh
+```
+
+This installs:
+
+- Homebrew, if missing
+- Ollama
+- `qwen2.5-coder:7b`
+- OpenCode
+
+Then open any project and run:
+
+```bash
+cd /path/to/your/project
+ollama launch opencode
+```
+
+Or run the helper from inside whatever project you want OpenCode to work on:
+
+```bash
+cd /path/to/your/project
+/path/to/mac-local-ai-setup/run-opencode.sh
+```
+
+To use the smaller model:
+
+```bash
+./setup-opencode.sh qwen2.5-coder:3b
+```
+
+OpenCode is the closest option here to Codex CLI or Claude Code. It can inspect/edit files and run commands from your terminal. The local model quality will be weaker than hosted frontier models, especially on a MacBook Air.
 
 ## Run A Local Model Only
 
@@ -42,7 +80,7 @@ curl http://localhost:11434/api/generate \
 
 ## Run With A Browser Harness
 
-For a ChatGPT-style local app with model management and optional web search/RAG features, install Open WebUI:
+For a ChatGPT-style local browser app with model management and optional web search/RAG features, install Open WebUI:
 
 ```bash
 ./setup-open-webui.sh

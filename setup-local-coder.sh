@@ -4,6 +4,7 @@ set -euo pipefail
 MODEL="${MODEL:-qwen2.5-coder:7b}"
 OLLAMA_HOST_URL="${OLLAMA_HOST_URL:-http://localhost:11434}"
 INSTALL_WEBUI=0
+INSTALL_OPENCODE=0
 SKIP_TEST=0
 OPEN_WEBUI_PORT="${OPEN_WEBUI_PORT:-3000}"
 OPEN_WEBUI_CONTAINER="${OPEN_WEBUI_CONTAINER:-open-webui}"
@@ -12,12 +13,15 @@ usage() {
   cat <<EOF
 Usage:
   ./setup-local-coder.sh [model]
+  ./setup-local-coder.sh --opencode [model]
   ./setup-local-coder.sh --webui [model]
 
 Examples:
   ./setup-local-coder.sh
   ./setup-local-coder.sh qwen2.5-coder:3b
+  ./setup-local-coder.sh --opencode
   ./setup-local-coder.sh --webui
+  ./setup-local-coder.sh --opencode --webui
   ./setup-local-coder.sh --webui qwen2.5-coder:3b
 
 Environment:
@@ -30,6 +34,9 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     --webui)
       INSTALL_WEBUI=1
+      ;;
+    --opencode)
+      INSTALL_OPENCODE=1
       ;;
     --no-test)
       SKIP_TEST=1
@@ -179,6 +186,35 @@ ensure_docker_desktop() {
   exit 1
 }
 
+add_opencode_to_path_if_needed() {
+  if ! need_cmd opencode && [[ -x "$HOME/.opencode/bin/opencode" ]]; then
+    export PATH="$HOME/.opencode/bin:$PATH"
+  fi
+}
+
+ensure_opencode() {
+  log "Installing OpenCode"
+  add_opencode_to_path_if_needed
+
+  if need_cmd opencode; then
+    echo "OpenCode is already installed."
+    opencode --version || true
+    return
+  fi
+
+  curl -fsSL https://opencode.ai/install | bash
+  add_opencode_to_path_if_needed
+
+  if ! need_cmd opencode; then
+    echo "OpenCode installed, but opencode is not on PATH yet."
+    echo "Restart Terminal, then run:"
+    echo "  ollama launch opencode"
+    exit 1
+  fi
+
+  opencode --version || true
+}
+
 install_open_webui() {
   log "Installing Open WebUI"
   docker volume create open-webui >/dev/null
@@ -213,6 +249,10 @@ if [[ "$INSTALL_WEBUI" == "1" ]]; then
   install_open_webui
 fi
 
+if [[ "$INSTALL_OPENCODE" == "1" ]]; then
+  ensure_opencode
+fi
+
 cat <<EOF
 
 Done.
@@ -239,10 +279,25 @@ EOF
 else
   cat <<EOF
 
+Install the terminal coding-agent harness:
+  ./setup-local-coder.sh --opencode $MODEL
+
 Install the browser harness too:
   ./setup-local-coder.sh --webui $MODEL
 
 Try a smaller model if this Mac feels slow:
   ./setup-local-coder.sh qwen2.5-coder:3b
+EOF
+fi
+
+if [[ "$INSTALL_OPENCODE" == "1" ]]; then
+  cat <<EOF
+
+Use the Codex/Claude Code-style terminal agent inside any project:
+  cd /path/to/your/project
+  ollama launch opencode
+
+You can also try plain OpenCode:
+  opencode
 EOF
 fi
